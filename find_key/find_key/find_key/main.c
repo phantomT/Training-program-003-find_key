@@ -57,9 +57,28 @@ char* get_key(void)
 	return key;
 }
 
+int type_cmp(char* file_name)
+{
+	char type[4];
+	int i = 0,l=0;
+	l = strlen(file_name);
+	for (i = 0; i < 4; i++)
+		type[i] = file_name[l - 4 + i];
+	
+	for(i=0;i<4;i++)
+		printf("%c", type[i]);
+
+	printf("\n");
+
+	if (strcmp(type, ".txt"))
+		return 1;
+	else
+		return 0;
+}
+
 void file_search(char*file_loc, char *key)
 {
-	printf("test\n");
+	printf("%s\n",file_loc);
 }
 
 void dir_search(char*file_loc, int layer, char* key)				//dir_search
@@ -73,7 +92,7 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 	int loc_len, type_len;
 
 	loc_len = strlen(file_loc);
-	type_len = strlen("*.txt");
+	type_len = strlen("*.*");
 
 	curr = (char*)malloc(loc_len + type_len + 1);
 	if (NULL == curr)
@@ -82,7 +101,7 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 	}
 
 	strcpy(curr, file_loc);
-	strcat(curr, "*.txt");
+	strcat(curr, "*.*");
 	printf("file_add test output: %s\n", curr);
 
 	if ((fHandle = _findfirst(curr, &fileinfo)) != -1L)
@@ -111,9 +130,9 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 				strcat(curr_n, "/");
 				dir_search(curr_n, layer + 1, key);                  // µÝ¹é±éÀú×ÓÄ¿Â¼  
 			}
-			else
+			else if(type_cmp(fileinfo.name))
 			{
-				file_search(curr,key);
+				file_search(fileinfo.name,key);
 			}
 
 		} while (_findnext(fHandle, &fileinfo) == 0);
