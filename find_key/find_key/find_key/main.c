@@ -65,10 +65,10 @@ int type_cmp(char* file_name)
 	for (i = 0; i < 4; i++)
 		type[i] = file_name[l - 4 + i];
 	
-	for(i=0;i<4;i++)
-		printf("%c", type[i]);
+	//for(i=0;i<4;i++)
+		//printf("%c", type[i]);
 
-	printf("\n");
+	//printf("\n");
 
 	if (strcmp(type, ".txt"))
 		return 1;
@@ -76,9 +76,27 @@ int type_cmp(char* file_name)
 		return 0;
 }
 
-void file_search(char*file_loc, char *key)
+char* file_end_change(char* file_name,char* fileinfo_name)
 {
-	printf("%s\n",file_loc);
+	int l1 = strlen(file_name);
+	int lenth = l1+strlen(fileinfo_name)-3;
+	
+	char* name_ch;												// *.*->[],+fileinfo.name
+	name_ch = (char*)malloc(lenth);
+	if (NULL == name_ch)
+		exit(1);
+	strcpy(name_ch, file_name);
+	name_ch[l1 - 3] = '\0';
+	strcat(name_ch, fileinfo_name);
+
+	printf("%s\n", name_ch);
+	return name_ch;
+}
+
+void file_search(char*file_loc, char *key)							//打开文本文件搜索关键词
+{
+
+	//printf("%s\n",file_loc);
 }
 
 void dir_search(char*file_loc, int layer, char* key)				//dir_search
@@ -102,7 +120,7 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 
 	strcpy(curr, file_loc);
 	strcat(curr, "*.*");
-	printf("file_add test output: %s\n", curr);
+	//printf("file_add test output: %s\n", curr);
 
 	if ((fHandle = _findfirst(curr, &fileinfo)) != -1L)
 	{
@@ -113,7 +131,7 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 			if (strcmp(fileinfo.name, ".") == 0)
 				continue;
 			for (Layer = 0; Layer < layer; Layer++);
-			printf("%d", Layer);
+			//printf("%d", Layer);
 
 			if (_A_SUBDIR == fileinfo.attrib)              // 是目录  
 			{
@@ -128,11 +146,12 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 				strcpy(curr_n, file_loc);
 				strcat(curr_n, fileinfo.name);
 				strcat(curr_n, "/");
-				dir_search(curr_n, layer + 1, key);                  // 递归遍历子目录  
+				dir_search(curr_n, layer + 1, key);                  // 递归遍历子目录 
 			}
 			else if(type_cmp(fileinfo.name))
 			{
-				file_search(fileinfo.name,key);
+				file_end_change(curr,fileinfo.name);
+				file_search(curr,key);
 			}
 
 		} while (_findnext(fHandle, &fileinfo) == 0);
