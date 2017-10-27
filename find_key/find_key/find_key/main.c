@@ -80,12 +80,15 @@ char* file_end_change(char* file_name,char* fileinfo_name)
 {
 	int l1 = strlen(file_name);
 	int lenth = l1+strlen(fileinfo_name)-3;
-	
+	//int lenth = strlen(fileinfo_name) + 2 - 3;
+
 	char* name_ch;												// *.*->[],+fileinfo.name
 	name_ch = (char*)malloc(lenth);
 	if (NULL == name_ch)
 		exit(1);
-	strcpy(name_ch, file_name);
+	//strcpy(name_ch, "./");
+	//strcat(name_ch, fileinfo_name);
+
 	name_ch[l1 - 3] = '\0';
 	strcat(name_ch, fileinfo_name);
 
@@ -93,10 +96,41 @@ char* file_end_change(char* file_name,char* fileinfo_name)
 	return name_ch;
 }
 
-void file_search(char*file_loc, char *key)							//打开文本文件搜索关键词
+void file_search(char* file_loc, char* key)
 {
+	/*打开文本文件，查找关键词，输出关键词的第一个字的位置*/
+	FILE *fp;
+	if ((fp = fopen(file_loc, "rb")) == NULL)
+	{
+		printf("Open failure...\n");                        // 如果打开时出错，就输出"打不开"的信息    
+		system("pause");
+	}
 
-	//printf("%s\n",file_loc);
+	//定义一行的字符串结构体
+	typedef struct String
+	{
+		char string[1024];				//字符串
+		int len;						//一行长度
+		int line;						//行数
+	}String;
+
+	String pstring;
+	pstring.line = 0;
+
+	while (!feof(fp))												//循环读取每一行，直到文件尾  
+	{
+		fgets(pstring.string, MAX_LINE, fp);						//将fp所指向的文件一行内容读到strLine缓冲区  
+																	//printf("%s", pstring.string);								//输出所读到的内容  
+		pstring.line++;
+		if (strstr(pstring.string, key))
+		{
+			printf("第%d行出现了关键词\"%s\"\n", pstring.line, key);
+		}
+	}
+
+	/*################### 关闭文件 ###################*/
+
+	fclose(fp);
 }
 
 void dir_search(char*file_loc, int layer, char* key)				//dir_search
@@ -120,7 +154,7 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 
 	strcpy(curr, file_loc);
 	strcat(curr, "*.*");
-	//printf("file_add test output: %s\n", curr);
+	printf("file_add test output: %s\n", curr);
 
 	if ((fHandle = _findfirst(curr, &fileinfo)) != -1L)
 	{
@@ -133,7 +167,15 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 			for (Layer = 0; Layer < layer; Layer++);
 			//printf("%d", Layer);
 
-			if (_A_SUBDIR == fileinfo.attrib)              // 是目录  
+			if (_A_SUBDIR != fileinfo.attrib)
+			{
+				if (type_cmp(fileinfo.name))
+				{
+					file_end_change(curr, fileinfo.name);
+					file_search(curr, key);
+				}
+			}
+			else												// 是目录  
 			{
 				printf("[Dir]:\t%s\n", fileinfo.name);
 				char* curr_n;
@@ -147,11 +189,6 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 				strcat(curr_n, fileinfo.name);
 				strcat(curr_n, "/");
 				dir_search(curr_n, layer + 1, key);                  // 递归遍历子目录 
-			}
-			else if(type_cmp(fileinfo.name))
-			{
-				file_end_change(curr,fileinfo.name);
-				file_search(curr,key);
 			}
 
 		} while (_findnext(fHandle, &fileinfo) == 0);
