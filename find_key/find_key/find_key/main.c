@@ -89,6 +89,7 @@ char* file_end_change(char* file_name,char* fileinfo_name)
 	//strcpy(name_ch, "./");
 	//strcat(name_ch, fileinfo_name);
 
+	strcpy(name_ch, file_name);
 	name_ch[l1 - 3] = '\0';
 	strcat(name_ch, fileinfo_name);
 
@@ -124,7 +125,7 @@ void file_search(char* file_loc, char* key)
 		pstring.line++;
 		if (strstr(pstring.string, key))
 		{
-			printf("第%d行出现了关键词\"%s\"\n", pstring.line, key);
+			printf("\t\t第%d行出现了关键词\"%s\"\n", pstring.line, key);
 		}
 	}
 
@@ -160,19 +161,16 @@ void dir_search(char*file_loc, int layer, char* key)				//dir_search
 	{
 		do
 		{
-			if (strcmp(fileinfo.name, "..") == 0)
-				continue;
-			if (strcmp(fileinfo.name, ".") == 0)
+			if (strcmp(fileinfo.name, "..") == 0 || strcmp(fileinfo.name, ".") == 0)
 				continue;
 			for (Layer = 0; Layer < layer; Layer++);
-			//printf("%d", Layer);
+			printf("\t");
 
 			if (_A_SUBDIR != fileinfo.attrib)
 			{
 				if (type_cmp(fileinfo.name))
 				{
-					file_end_change(curr, fileinfo.name);
-					file_search(curr, key);
+					file_search(file_end_change(curr, fileinfo.name), key);
 				}
 			}
 			else												// 是目录  
